@@ -1,13 +1,15 @@
+*.pt
+*.log
 
 # External libraries
 /venv
-config.py
-resources/datasets/
+env.py
+/resources/models
 
 # IDE configuration
 /.idea
 /.vscode
-*.log
+/pyrightconfig.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

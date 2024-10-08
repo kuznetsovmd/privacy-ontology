@@ -1,23 +1,31 @@
 Notes
 -----
 
-To run the application it is necessary to copy example.config.py and rename it to config.py.
+ROCm installation:
+```
+pip install --ignore-installed torch --index-url https://download.pytorch.org/whl/rocm6.1
 
-The work which is supposed to be done is defined in main.py with explicit mention of generator functions.
+HSA_OVERRIDE_GFX_VERSION=10.3.0 python main.py classifier -t
+```
+
+To run the application it is necessary to copy `example.config.py` and rename it to `config.py`.
+
+The work which is supposed to be done is defined in `main.py` with explicit mention of generator functions.
 
 The ontology has several versions:
 1. Raw version without interface to interact (without class restrictions and with messy object properties),
 1. Same version with interface,
-1. New version of ontology (ontology2) which has class restrictions, less amount of object properties and more meaningful ones.
+1. New version of ontology (`ontology2`) which has class restrictions, less amount of object properties and more meaningful ones.
 
 - The `ontology` folder contains ontology scheme and interface,
 - The `ontology2` folder contains ontology2 scheme and interface,
-- The `experiments` folder in `ontology` and `ontology2` contains manually created ontologies,
-- The `queries` folder in `ontology` and `ontology2` contains queries definitioins,
+- The `queries` folder in `ontology` and `ontology2` contains queries` definitioins,
 - The `resources` folder contains query results, datasets, generated ontologies.
 - The `annotations_builder` folder contains algorithms for ontology creation with provided annotations,
 - The `classifier_builder` folder contains algorithms for automatic ontology creation,
+- The `manual_builder` folder in `ontology` and `ontology2` contains manually created ontologies,
 - The `docs` folder contains documentation for the ontology
+
 
 TODO
 ----
@@ -63,7 +71,6 @@ TODO
 
 Health care applications
 ------------------------
-
 
 Device|Application|Policy link|Device link
 ------|-----------|-----------|-----------
