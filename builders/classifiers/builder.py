@@ -37,6 +37,11 @@ def train_classifier(ontology_class, annotations_path,
         'split': split,
     }).values()
 
+    if not any([di for d in t_ds for di in d['target_ids']]) \
+        or not any([di for d in v_ds for di in d['target_ids']]):
+        print("W: no positive classes!")
+        return
+
     model = build_model(**model_conf)
     start = time.time()
     try:
@@ -98,3 +103,4 @@ def eval_classifier(ontology_class, annotations_path,
 
     with open(f'{output_path}/annotations.{model.name}.{model.version}.json', 'w') as f:
         json.dump(output, f, indent=4, ensure_ascii=False)
+        

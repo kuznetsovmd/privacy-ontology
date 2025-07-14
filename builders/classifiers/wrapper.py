@@ -3,6 +3,7 @@ import shutil
 import torch
 
 import numpy as np
+from sklearn.metrics import average_precision_score, f1_score
 from transformers import logging, AutoModel
 
 
@@ -74,41 +75,40 @@ class BaseModel:
             output = self.module(embedding).detach().cpu().tolist()
 
             return {
-                'predicted': [1 if v[0] > .5 else 0 for v in output],
+                'predicted': [1 if v[0] > .25 else 0 for v in output],
                 'output': [v[0] for v in output], 
             }
 
 
 class Model(BaseModel):
-    def __f1score(self, output, target):
-        assert len(output) == len(target), 'outputs & targets not equally on length'
-        tp = np.sum((np.array(output) == 1) == (np.array(target) == 1))
-        fp = np.sum((np.array(output) == 1) == (np.array(target) == 0))
-        fn = np.sum((np.array(output) == 0) == (np.array(target) == 1))
-        precision = tp / (tp + fp)
-        recall = tp / (tp + fn)
-        return 0 if precision + recall == 0 else (2 * precision * recall) / (precision + recall)
-    
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.t_scores = []
         self.t_losses = []
-        self.v_scores = []
         self.v_losses = []
+        self.t_pred = []
+        self.v_pred = []
+        self.t_output = []
+        self.v_output = []
+        self.t_target = []
+        self.v_target = []
 
         self.stats_mem = []
 
     def train(self, sample):
         output = super().train(**sample)
         self.t_losses.append(output['loss'])
-        self.t_scores.append(self.__f1score(output['predicted'], sample['target_ids']))
+        self.t_target.extend(sample['target_ids'])
+        self.t_pred.extend(output['predicted'])
+        self.t_output.extend(output['output'])
         return output
 
     def test(self, sample):
         output = super().train(**sample)
         self.v_losses.append(output['loss'])
-        self.v_scores.append(self.__f1score(output['predicted'], sample['target_ids']))
+        self.v_target.extend(sample['target_ids'])
+        self.v_pred.extend(output['predicted'])
+        self.v_output.extend(output['output'])
         return output
 
     def predict(self, sample):
@@ -118,16 +118,21 @@ class Model(BaseModel):
         stats = {
             't_loss': np.average(self.t_losses) if self.t_losses else 0,
             'v_loss':  np.average(self.v_losses) if self.v_losses else 0,
-            't_accuracy': np.average(self.t_scores) if self.t_scores else 0,
-            'v_accuracy': np.average(self.v_scores) if self.v_scores else 0,
+            't_f1': f1_score(self.t_target, self.t_pred),
+            'v_f1': f1_score(self.v_target, self.v_pred),
+            't_pr_auc': average_precision_score(self.t_target, self.t_output),
+            'v_pr_auc': average_precision_score(self.v_target, self.v_output)
         }
-
         self.stats_mem.append(stats)
 
         self.t_losses = []
-        self.t_scores = []
         self.v_losses = []
-        self.v_scores = []
+        self.t_pred = []
+        self.v_pred = []
+        self.t_output = []
+        self.v_output = []
+        self.t_target = []
+        self.v_target = []
 
         return stats
 
@@ -137,7 +142,10 @@ def build_model(name, version, path, pretrained, **kwargs):
     model.path = path
 
     if pretrained:
-        loaded = torch.load(f'{path}/{name}.{version:05d}.pt')
+        try:
+            loaded = torch.load(f'{path}/{name}.{version:05d}.pt')
+        except FileNotFoundError:
+            return None
 
         if loaded:
             model.name = loaded['name']

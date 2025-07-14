@@ -11,7 +11,7 @@ def time_since(since):
 
 
 def print_stats(epoch, n_epochs, start, stats):
-        print(f'R: epoch={epoch} [{epoch * 100 // n_epochs}%] time=[{time_since(start)}] '
-              f'T loss={stats["t_loss"]:.3f}, T accuracy={stats["t_accuracy"]:.3f} '
-              f'V loss={stats["v_loss"]:.3f}, V accuracy={stats["v_accuracy"]:.3f}')
+        print(f'R: epoch={epoch} [{epoch * 100 // n_epochs}%] time=[{time_since(start)}]\n'
+              f'T loss={stats["t_loss"]:.3f}, T f1={stats["t_f1"]:.3f}, T pr_auc={stats["t_pr_auc"]:.3f}\n'
+              f'V loss={stats["v_loss"]:.3f}, V f1={stats["v_f1"]:.3f}, V pr_auc={stats["v_pr_auc"]:.3f}')
     

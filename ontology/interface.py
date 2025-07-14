@@ -29,10 +29,16 @@ class Ontology:
             construct(self.raw_onto)
 
         if create_root_policy:
-            self.policy = self.individual('PrivacyPolicy', evidence=None, properties=[Property('policyWebsite', website)])
+            self.policy = self.individual(
+                'PrivacyPolicy', 
+                evidence=None, 
+                properties=[Property('policyWebsite', website)])
 
     def new_policy(self, website):
-        self.policy = self.individual('PrivacyPolicy', evidence=None, properties=[Property('policyWebsite', website)])
+        self.policy = self.individual(
+            'PrivacyPolicy', 
+            evidence=None, 
+            properties=[Property('policyWebsite', website)])
 
     @staticmethod
     def reason():
